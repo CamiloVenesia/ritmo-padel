@@ -1,0 +1,37 @@
+name: Calidad y tests
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: ritmo
+          POSTGRES_PASSWORD: ritmo_local_dev
+          POSTGRES_DB: ritmo_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd 'pg_isready -U ritmo -d ritmo_test'
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install
+        run: npm install
+      - name: Types, tests, build
+        run: npm run check
+      - name: Integration (isolated DB)
+        run: npm run test:integration
+        env:
+          DATABASE_URL: postgres://ritmo:ritmo_local_dev@localhost:5432/ritmo_test
+          SESSION_SECRET: test_only_secure_dummy_secret_of_48_characters_123456789
+          PUBLIC_ORIGIN: http://localhost:5173
+          NODE_ENV: test
+      - name: Production dependency audit
+        run: npm audit --omit=dev

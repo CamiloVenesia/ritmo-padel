@@ -1,0 +1,29 @@
+{
+  "name": "ritmo-padel",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/api",
+    "apps/web"
+  ],
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "scripts": {
+    "dev": "concurrently -k -n API,WEB -c green,cyan \"npm run dev -w @ritmo/api\" \"npm run dev -w @ritmo/web\"",
+    "dev:demo": "npm run dev -w @ritmo/web",
+    "build": "npm run build -w @ritmo/api && npm run build -w @ritmo/web",
+    "start": "npm run start -w @ritmo/api",
+    "db:migrate": "npm run db:migrate -w @ritmo/api",
+    "db:seed": "npm run db:seed -w @ritmo/api",
+    "test": "npm run test -w @ritmo/api && npm run test -w @ritmo/web",
+    "typecheck": "npm run typecheck -w @ritmo/api && npm run typecheck -w @ritmo/web",
+    "audit:prod": "npm audit --omit=dev",
+    "check": "npm run typecheck && npm run test && npm run build",
+    "test:integration": "npm run test:integration -w @ritmo/api"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "typescript": "^5.9.3"
+  }
+}
