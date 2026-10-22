@@ -1,0 +1,254 @@
+
+/*
+ * RITMO PÁDEL
+ * Hero 3D — iluminación interactiva
+ */
+
+.hero-3d {
+  --cursor-x: 50%;
+  --cursor-y: 50%;
+
+  position: absolute;
+  inset: 54px 0 70px;
+  z-index: 4;
+  isolation: isolate;
+  pointer-events: none;
+}
+
+/* Ilustración de respaldo y Canvas */
+
+.hero-3d__fallback,
+.hero-3d__canvas {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.hero-3d__fallback {
+  opacity: 1;
+  overflow: hidden;
+  transition: opacity 400ms ease;
+}
+
+.hero-3d__fallback .court-art--hero {
+  position: absolute;
+  top: 0;
+  left: -2%;
+  width: 104%;
+  max-width: none;
+  height: 100%;
+  animation: none;
+}
+
+.hero-3d__canvas {
+  inset: -2% -7%;
+  opacity: 0;
+  transition: opacity 400ms ease;
+}
+
+.hero-3d__canvas canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  pointer-events: none !important;
+}
+
+.hero-3d--ready .hero-3d__canvas {
+  opacity: 1;
+}
+
+.hero-3d--ready .hero-3d__fallback {
+  opacity: 0;
+}
+
+/*
+ * Reflejo luminoso visible que sigue el cursor.
+ * Funciona aunque la iluminación física
+ * de Three.js sea poco perceptible.
+ */
+
+.hero-3d__cursor-glow {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  opacity: 0;
+  pointer-events: none;
+
+  background: radial-gradient(
+    circle 125px at var(--cursor-x) var(--cursor-y),
+    rgba(222, 255, 128, .42) 0%,
+    rgba(196, 255, 103, .20) 35%,
+    rgba(170, 255, 83, .06) 62%,
+    transparent 80%
+  );
+
+  mix-blend-mode: screen;
+  transition: opacity 180ms ease;
+}
+
+.hero-3d[data-pointer='active']
+.hero-3d__cursor-glow {
+  opacity: 1;
+}
+
+/* Indicador de interacción */
+
+.hero-3d__hint {
+  position: absolute;
+  z-index: 5;
+  bottom: 7px;
+  left: 50%;
+  transform: translateX(-50%);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  width: max-content;
+  max-width: 94%;
+  padding: 7px 12px;
+
+  border: 1px solid rgba(208, 251, 103, .22);
+  border-radius: 999px;
+
+  background: rgba(4, 25, 18, .82);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, .18);
+
+  color: #e2ffb2;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .75px;
+  white-space: nowrap;
+  text-align: center;
+  pointer-events: none;
+}
+
+.hero-3d__hint-dot {
+  flex: 0 0 7px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+
+  background: #d0fb67;
+  box-shadow: 0 0 12px #d0fb67;
+}
+
+.hero-3d__hint-active {
+  display: none;
+}
+
+.hero-3d[data-pointer='active']
+.hero-3d__hint-active {
+  display: inline;
+}
+
+.hero-3d[data-pointer='active']
+.hero-3d__hint-idle {
+  display: none;
+}
+
+.hero-3d[data-pointer='active']
+.hero-3d__hint {
+  border-color: rgba(208, 251, 103, .74);
+  background: rgba(9, 46, 29, .94);
+}
+
+/* ====================================
+   CUATRO TARJETAS DEL HOME
+==================================== */
+
+.home-page .home-court-grid {
+  width: 100%;
+  max-width: 1160px;
+  margin-inline: auto;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 15px;
+}
+
+.home-page .home-court {
+  min-width: 0;
+}
+
+.home-page .home-court__art {
+  height: 170px;
+}
+
+.home-page .home-court__art svg.court-art--card {
+  width: 105%;
+  max-width: none;
+  height: 215px;
+  left: -2.5%;
+  top: -24px;
+}
+
+.home-page .home-court__body {
+  padding: 8px 16px 17px;
+}
+
+.home-page .home-court__body h3 {
+  font-size: clamp(20px, 1.8vw, 25px);
+  margin: 6px 0 14px;
+}
+
+.home-page .home-court__body > div {
+  padding-top: 12px;
+}
+
+/* Tablet */
+
+@media (max-width: 1180px) {
+  .home-page .home-court-grid {
+    max-width: 780px;
+
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Móvil */
+
+@media (max-width: 650px) {
+  .hero-3d {
+    inset: 43px 0 58px;
+  }
+
+  .hero-3d__hint {
+    display: none;
+  }
+
+  .home-page .home-court-grid {
+    gap: 10px;
+  }
+
+  .home-page .home-court__art {
+    height: 125px;
+  }
+
+  .home-page .home-court__art svg.court-art--card {
+    height: 175px;
+    top: -25px;
+  }
+
+  .home-page .home-court__body {
+    padding: 6px 10px 12px;
+  }
+
+  .home-page .home-court__body h3 {
+    font-size: 18px;
+    margin-bottom: 11px;
+  }
+}
+
+/* Accesibilidad */
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-3d__fallback,
+  .hero-3d__canvas,
+  .hero-3d__cursor-glow {
+    transition: none;
+  }
+}
