@@ -1,0 +1,439 @@
+/* RITMO PÁDEL — Bloque 2: animación premium del Home.
+   Solo afecta .home-page; no modifica reservas ni panel de administración. */
+
+.home-page {
+  --home-easing: cubic-bezier(.2, .76, .22, 1);
+}
+
+/* Entradas progresivas. No ocultar contenido si JavaScript está deshabilitado. */
+.home-page.motion-ready [data-reveal] {
+  opacity: 0;
+  transform: translate3d(0, 28px, 0);
+  transition:
+    opacity 650ms var(--home-easing),
+    transform 750ms var(--home-easing);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+.home-page.motion-ready [data-reveal].is-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+/* Hero: brillos atmosféricos y entrada cinematográfica. */
+.home-hero .hero-grid {
+  background-size: 87px 87px;
+  animation: home-grid-drift 28s linear infinite alternate;
+}
+
+.home-hero .hero-orbit--1 {
+  animation: home-orbit-one 30s linear infinite;
+}
+
+.home-hero .hero-orbit--2 {
+  animation: home-orbit-two 38s linear infinite;
+}
+
+.home-hero__beam {
+  pointer-events: none;
+  position: absolute;
+  top: -35%;
+  right: -12%;
+  width: min(76vw, 980px);
+  height: 125%;
+  background: conic-gradient(
+    from 190deg,
+    transparent 0deg,
+    rgba(197, 252, 101, .06) 21deg,
+    transparent 44deg,
+    transparent 360deg
+  );
+  filter: blur(38px);
+  transform-origin: 65% 75%;
+  animation: home-beam-sweep 17s ease-in-out infinite alternate;
+}
+
+.home-hero__eyebrow {
+  animation: home-copy-in 690ms both 80ms var(--home-easing);
+}
+
+.home-page .hero-title-line {
+  display: block;
+  width: fit-content;
+  color: #f1f5e9;
+  animation: home-title-in 820ms both var(--home-easing);
+}
+
+.home-page .hero-title-line--one {
+  animation-delay: 130ms;
+}
+
+.home-page .hero-title-line--two {
+  animation-delay: 220ms;
+}
+
+.home-page .hero-title-line--accent {
+  position: relative;
+  color: var(--lime);
+  animation-delay: 310ms;
+}
+
+.home-hero__lead {
+  animation: home-copy-in 800ms both 410ms var(--home-easing);
+}
+
+.home-hero__actions {
+  animation: home-copy-in 800ms both 510ms var(--home-easing);
+}
+
+.home-hero__proof {
+  animation: home-copy-in 800ms both 610ms var(--home-easing);
+}
+
+.home-hero__stage {
+  --pointer-x: 50%;
+  --pointer-y: 50%;
+  --tilt-x: 0deg;
+  --tilt-y: 0deg;
+  transform: perspective(1050px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
+  transition: transform 280ms ease-out, border-color 350ms ease, box-shadow 350ms ease;
+  animation: home-stage-fade 1100ms both 180ms var(--home-easing);
+}
+
+.home-hero__stage:hover {
+  border-color: rgba(203, 251, 87, .28);
+  box-shadow:
+    inset 0 0 80px rgba(25, 68, 45, .26),
+    0 40px 110px rgba(0, 0, 0, .3),
+    0 0 50px rgba(203, 251, 87, .09);
+}
+
+.home-hero__spotlight {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(
+    circle 180px at var(--pointer-x) var(--pointer-y),
+    rgba(204, 250, 93, .14),
+    rgba(204, 250, 93, .025) 58%,
+    transparent 100%
+  );
+  opacity: .7;
+  transition: opacity 250ms ease;
+}
+
+.home-hero__stage:hover .home-hero__spotlight {
+  opacity: 1;
+}
+
+.home-hero__scanner {
+  position: absolute;
+  inset: 12% 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    transparent 48%,
+    rgba(200, 255, 108, .10) 50%,
+    transparent 52%,
+    transparent 100%
+  );
+  opacity: 0;
+  transform: translateY(-36%);
+}
+
+.home-hero__stage:hover .home-hero__scanner {
+  opacity: 1;
+  animation: home-scan 3.1s ease-in-out infinite;
+}
+
+.home-hero__corner {
+  position: absolute;
+  width: 25px;
+  height: 25px;
+  z-index: 3;
+  pointer-events: none;
+  opacity: .18;
+  transition: opacity 280ms ease, width 280ms ease, height 280ms ease;
+}
+
+.home-hero__corner--tl {
+  top: 10px;
+  left: 10px;
+  border-top: 1px solid var(--lime);
+  border-left: 1px solid var(--lime);
+}
+
+.home-hero__corner--br {
+  bottom: 10px;
+  right: 10px;
+  border-bottom: 1px solid var(--lime);
+  border-right: 1px solid var(--lime);
+}
+
+.home-hero__stage:hover .home-hero__corner {
+  width: 35px;
+  height: 35px;
+  opacity: .75;
+}
+
+/* Botones: recorrido de luz y flecha reactiva. */
+.home-page .home-motion-btn {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  transition:
+    transform 250ms var(--home-easing),
+    box-shadow 300ms ease,
+    color 250ms ease,
+    background-color 250ms ease;
+}
+
+.home-page .home-motion-btn > span,
+.home-page .home-motion-btn > svg {
+  position: relative;
+  z-index: 1;
+}
+
+.home-page .home-motion-btn::before {
+  content: '';
+  position: absolute;
+  inset: -70% auto -70% -45%;
+  width: 32%;
+  z-index: 0;
+  transform: rotate(20deg) translateX(-300%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, .30),
+    transparent
+  );
+  transition: transform 620ms var(--home-easing);
+  pointer-events: none;
+}
+
+.home-page .home-motion-btn:hover::before,
+.home-page .home-motion-btn:focus-visible::before {
+  transform: rotate(20deg) translateX(700%);
+}
+
+.home-page .home-motion-btn > svg {
+  transition: transform 260ms var(--home-easing);
+}
+
+.home-page .home-motion-btn:hover > svg,
+.home-page .home-motion-btn:focus-visible > svg {
+  transform: translate(3px, -3px);
+}
+
+.home-page .btn-lime.home-motion-btn:hover {
+  box-shadow: 0 12px 34px rgba(203, 251, 87, .2);
+}
+
+.home-page .btn-black.home-motion-btn:hover,
+.home-page .btn-dark.home-motion-btn:hover {
+  box-shadow: 0 12px 28px rgba(0, 0, 0, .22);
+}
+
+.home-page .home-text-cta svg {
+  transition: transform 260ms var(--home-easing);
+}
+
+.home-page .home-text-cta:hover svg,
+.home-page .home-text-cta:focus-visible svg {
+  transform: translate(4px, -3px);
+}
+
+/* Beneficios: iconos con personalidad y línea luminosa al pie. */
+.home-page .home-feature {
+  position: relative;
+  isolation: isolate;
+  transition: background-color 280ms ease;
+}
+
+.home-page .home-feature::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 18px;
+  height: 2px;
+  transform: scaleX(0);
+  transform-origin: left center;
+  background: #6f9a37;
+  transition: transform 400ms var(--home-easing);
+}
+
+.home-page .home-feature:hover::after,
+.home-page .home-feature:focus-within::after {
+  transform: scaleX(1);
+}
+
+.home-page .home-feature .feature-icon {
+  transition:
+    transform 390ms var(--home-easing),
+    color 280ms ease,
+    background-color 280ms ease,
+    box-shadow 390ms ease;
+}
+
+.home-page .home-feature:hover .feature-icon {
+  transform: translateY(-5px) rotate(-7deg);
+  color: #0c291c;
+  background: var(--lime);
+  box-shadow: 0 10px 25px rgba(102, 144, 45, .16);
+}
+
+.home-page .home-feature:nth-child(2):hover .feature-icon svg {
+  animation: home-clock-tick 550ms var(--home-easing) both;
+}
+
+.home-page .home-feature:nth-child(3):hover .feature-icon {
+  transform: translateY(-5px) scale(1.12);
+}
+
+.home-page .home-feature:nth-child(4):hover .feature-icon {
+  transform: translateY(-5px) rotate(0);
+}
+
+.home-feature__index {
+  position: absolute;
+  right: 16px;
+  top: 26px;
+  font: 700 11px 'Space Grotesk', sans-serif;
+  color: rgba(52, 94, 57, .35);
+  letter-spacing: .1em;
+}
+
+/* Pasos: acentuar el paso activo sin afectar su distribución. */
+.home-page .home-step {
+  position: relative;
+  transition: padding-left 300ms var(--home-easing), background-color 250ms ease;
+}
+
+.home-page .home-step:hover {
+  padding-left: 12px;
+  background: rgba(183, 218, 157, .12);
+}
+
+.home-page .home-step .step-icon {
+  transition: transform 320ms var(--home-easing), color 320ms ease;
+}
+
+.home-page .home-step:hover .step-icon {
+  color: #395e20;
+  transform: rotate(-10deg) scale(1.16);
+}
+
+/* CTA final: energía suave al pasar el mouse por la sección. */
+.home-final-cta::before {
+  content: '';
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 150%, rgba(20, 55, 25, .14), transparent 65%);
+  transform: scale(1);
+  transition: transform 900ms ease, opacity 900ms ease;
+  opacity: .45;
+}
+
+.home-final-cta:hover::before {
+  transform: scale(1.3);
+  opacity: .8;
+}
+
+.home-final-cta .final-cta__symbol {
+  transition: opacity 550ms ease;
+}
+
+.home-final-cta:hover .final-cta__symbol {
+  opacity: .16;
+}
+
+@keyframes home-title-in {
+  from { opacity: 0; transform: translateY(46px); filter: blur(7px); }
+  to { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
+@keyframes home-copy-in {
+  from { opacity: 0; transform: translateY(22px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes home-stage-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes home-grid-drift {
+  to { background-position: 87px 43px; }
+}
+
+@keyframes home-orbit-one {
+  to { transform: rotate(332deg); }
+}
+
+@keyframes home-orbit-two {
+  to { transform: rotate(-388deg); }
+}
+
+@keyframes home-beam-sweep {
+  to { transform: rotate(13deg); }
+}
+
+@keyframes home-scan {
+  0% { transform: translateY(-36%); }
+  100% { transform: translateY(36%); }
+}
+
+@keyframes home-clock-tick {
+  0%, 100% { transform: rotate(0); }
+  45% { transform: rotate(35deg); }
+}
+
+@media (max-width: 950px) {
+  .home-hero__beam { width: 100%; right: -24%; }
+  .home-hero__stage { transform: none; }
+}
+
+@media (hover: none) {
+  .home-hero__stage { transform: none; }
+  .home-page .home-step:hover { padding-left: 0; background: transparent; }
+  .home-page .home-feature::after { transform: scaleX(.25); opacity: .35; }
+  .home-page .home-feature__index { opacity: .7; }
+  .home-hero__scanner { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-page.motion-ready [data-reveal],
+  .home-page.motion-ready [data-reveal].is-visible {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .home-page .hero-title-line,
+  .home-hero__eyebrow,
+  .home-hero__lead,
+  .home-hero__actions,
+  .home-hero__proof,
+  .home-hero__stage,
+  .home-hero .hero-grid,
+  .home-hero .hero-orbit,
+  .home-hero__beam,
+  .home-hero__scanner,
+  .home-page .home-feature .feature-icon,
+  .home-page .home-motion-btn::before {
+    animation: none !important;
+    transition: none !important;
+    filter: none;
+  }
+
+  .home-hero__stage,
+  .home-page .home-step:hover,
+  .home-page .home-feature:hover .feature-icon {
+    transform: none;
+  }
+}
