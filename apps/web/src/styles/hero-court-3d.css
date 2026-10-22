@@ -1,13 +1,15 @@
 
 /*
- * RITMO PÁDEL
- * Hero 3D — iluminación interactiva
+ * RITMO PÁDEL — Hero 3D cinematográfico
+ *
+ * Giro de 360°, rayos de luz volumétricos
+ * y reflectores interactivos.
+ *
+ * No modifica los botones ni las
+ * animaciones individuales de las canchas.
  */
 
 .hero-3d {
-  --cursor-x: 50%;
-  --cursor-y: 50%;
-
   position: absolute;
   inset: 54px 0 70px;
   z-index: 4;
@@ -15,7 +17,9 @@
   pointer-events: none;
 }
 
-/* Ilustración de respaldo y Canvas */
+/* =====================================
+   ESCENA Y RESPALDO
+===================================== */
 
 .hero-3d__fallback,
 .hero-3d__canvas {
@@ -25,8 +29,8 @@
 }
 
 .hero-3d__fallback {
-  opacity: 1;
   overflow: hidden;
+  opacity: 1;
   transition: opacity 400ms ease;
 }
 
@@ -41,9 +45,9 @@
 }
 
 .hero-3d__canvas {
-  inset: -2% -7%;
+  inset: -4% -7%;
   opacity: 0;
-  transition: opacity 400ms ease;
+  transition: opacity 450ms ease;
 }
 
 .hero-3d__canvas canvas {
@@ -61,77 +65,46 @@
   opacity: 0;
 }
 
-/*
- * Reflejo luminoso visible que sigue el cursor.
- * Funciona aunque la iluminación física
- * de Three.js sea poco perceptible.
- */
-
-.hero-3d__cursor-glow {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  opacity: 0;
-  pointer-events: none;
-
-  background: radial-gradient(
-    circle 125px at var(--cursor-x) var(--cursor-y),
-    rgba(222, 255, 128, .42) 0%,
-    rgba(196, 255, 103, .20) 35%,
-    rgba(170, 255, 83, .06) 62%,
-    transparent 80%
-  );
-
-  mix-blend-mode: screen;
-  transition: opacity 180ms ease;
-}
-
-.hero-3d[data-pointer='active']
-.hero-3d__cursor-glow {
-  opacity: 1;
-}
-
-/* Indicador de interacción */
+/* =====================================
+   INDICADOR DE INTERACCIÓN
+===================================== */
 
 .hero-3d__hint {
   position: absolute;
   z-index: 5;
-  bottom: 7px;
+  top: 17px;
   left: 50%;
   transform: translateX(-50%);
 
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 8px;
 
-  width: max-content;
   max-width: 94%;
-  padding: 7px 12px;
+  padding: 7px 11px;
 
-  border: 1px solid rgba(208, 251, 103, .22);
-  border-radius: 999px;
+  border-radius: 100px;
+  border: 1px solid rgba(204, 255, 101, 0.35);
 
-  background: rgba(4, 25, 18, .82);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, .18);
+  background: rgba(7, 29, 21, 0.86);
+  color: #e4ffb7;
 
-  color: #e2ffb2;
+  white-space: nowrap;
   font-size: 9px;
   font-weight: 800;
-  letter-spacing: .75px;
-  white-space: nowrap;
-  text-align: center;
+  letter-spacing: 0.8px;
+
   pointer-events: none;
 }
 
 .hero-3d__hint-dot {
-  flex: 0 0 7px;
   width: 7px;
   height: 7px;
-  border-radius: 50%;
+  flex: 0 0 7px;
 
-  background: #d0fb67;
-  box-shadow: 0 0 12px #d0fb67;
+  border-radius: 50%;
+  background: #cfff65;
+  box-shadow: 0 0 10px #cfff65;
 }
 
 .hero-3d__hint-active {
@@ -150,13 +123,12 @@
 
 .hero-3d[data-pointer='active']
 .hero-3d__hint {
-  border-color: rgba(208, 251, 103, .74);
-  background: rgba(9, 46, 29, .94);
+  border-color: #cfff65;
 }
 
-/* ====================================
+/* =====================================
    CUATRO TARJETAS DEL HOME
-==================================== */
+===================================== */
 
 .home-page .home-court-grid {
   width: 100%;
@@ -198,7 +170,9 @@
   padding-top: 12px;
 }
 
-/* Tablet */
+/* =====================================
+   TABLET
+===================================== */
 
 @media (max-width: 1180px) {
   .home-page .home-court-grid {
@@ -209,7 +183,9 @@
   }
 }
 
-/* Móvil */
+/* =====================================
+   MÓVIL
+===================================== */
 
 @media (max-width: 650px) {
   .hero-3d {
@@ -243,12 +219,13 @@
   }
 }
 
-/* Accesibilidad */
+/* =====================================
+   ACCESIBILIDAD
+===================================== */
 
 @media (prefers-reduced-motion: reduce) {
   .hero-3d__fallback,
-  .hero-3d__canvas,
-  .hero-3d__cursor-glow {
+  .hero-3d__canvas {
     transition: none;
   }
 }

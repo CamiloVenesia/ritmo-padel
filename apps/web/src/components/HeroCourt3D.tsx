@@ -6,36 +6,41 @@ import * as THREE from 'three';
 import { CourtArt } from './CourtArt';
 import '../styles/hero-court-3d.css';
 
-const LIME = '#d0fb67';
+type Cursor = { x: number; y: number; active: boolean };
 
-type Cursor = {
-  ndcX: number;
-  ndcY: number;
-  active: boolean;
-};
-
-type BeamProps = {
+type BlockProps = {
   position: [number, number, number];
   size: [number, number, number];
-  color?: string;
-  emissive?: boolean;
+  color: string;
+  glow?: boolean;
 };
 
-function Beam({
+const LIME = '#cfff65';
+const UP = new THREE.Vector3(0, 1, 0);
+
+const TOWERS: [number, number][] = [
+  [-5.25, -7.25],
+  [5.25, -7.25],
+  [-5.25, 7.25],
+  [5.25, 7.25],
+];
+
+function Block({
   position,
   size,
-  color = '#345e50',
-  emissive = false,
-}: BeamProps) {
+  color,
+  glow = false,
+}: BlockProps) {
   return (
     <mesh position={position}>
       <boxGeometry args={size} />
-      {emissive ? (
+
+      {glow ? (
         <meshBasicMaterial color={color} toneMapped={false} />
       ) : (
         <meshStandardMaterial
           color={color}
-          metalness={0.48}
+          metalness={0.42}
           roughness={0.46}
         />
       )}
@@ -43,90 +48,93 @@ function Beam({
   );
 }
 
-function createHalo() {
+function makeGlowTexture() {
   const canvas = document.createElement('canvas');
+
   canvas.width = canvas.height = 128;
 
-  const context = canvas.getContext('2d');
+  const ctx = canvas.getContext('2d');
 
-  if (context) {
-    const gradient = context.createRadialGradient(
+  if (ctx) {
+    const gradient = ctx.createRadialGradient(
       64, 64, 0, 64, 64, 64,
     );
 
-    gradient.addColorStop(0, 'rgba(239,255,165,1)');
-    gradient.addColorStop(0.18, 'rgba(198,255,103,.82)');
-    gradient.addColorStop(0.5, 'rgba(167,255,88,.34)');
-    gradient.addColorStop(1, 'rgba(167,255,88,0)');
+    gradient.addColorStop(0, 'rgba(242,255,180,1)');
+    gradient.addColorStop(0.22, 'rgba(211,255,105,.76)');
+    gradient.addColorStop(0.55, 'rgba(172,255,92,.23)');
+    gradient.addColorStop(1, 'rgba(172,255,92,0)');
 
-    context.fillStyle = gradient;
-    context.fillRect(0, 0, 128, 128);
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, 128, 128);
   }
 
   return new THREE.CanvasTexture(canvas);
 }
 
-function Enclosure() {
+function GlassWalls() {
   return (
     <group>
       {[-4.65, 4.65].map((x) => (
-        <group key={`lateral-${x}`}>
-          <mesh position={[x, 1.64, 0]}>
-            <boxGeometry args={[0.035, 3.22, 16.6]} />
+        <group key={`side-${x}`}>
+          <mesh position={[x, 1.66, 0]}>
+            <boxGeometry args={[0.025, 3.2, 16.5]} />
+
             <meshPhysicalMaterial
-              color="#9cded7"
+              color="#9ee6d4"
               transparent
-              opacity={0.17}
+              opacity={0.18}
+              roughness={0.07}
               depthWrite={false}
-              roughness={0.08}
               side={THREE.DoubleSide}
             />
           </mesh>
 
-          {[-8.3, -4.15, 0, 4.15, 8.3].map((z) => (
-            <Beam
+          {[-8.25, -4.12, 0, 4.12, 8.25].map((z) => (
+            <Block
               key={`${x}-${z}`}
-              position={[x, 1.65, z]}
-              size={[0.105, 3.3, 0.105]}
-              color="#78958a"
+              position={[x, 1.7, z]}
+              size={[0.1, 3.4, 0.1]}
+              color="#578a79"
             />
           ))}
 
-          <Beam
-            position={[x, 3.3, 0]}
-            size={[0.11, 0.12, 16.7]}
-            color="#a3c0ad"
+          <Block
+            position={[x, 3.38, 0]}
+            size={[0.1, 0.09, 16.65]}
+            color="#8fb8a1"
           />
         </group>
       ))}
 
-      {[-8.3, 8.3].map((z) => (
-        <group key={`fondo-${z}`}>
-          <mesh position={[0, 1.64, z]}>
-            <boxGeometry args={[9.28, 3.22, 0.035]} />
+      {[-8.25, 8.25].map((z) => (
+        <group key={`end-${z}`}>
+          <mesh position={[0, 1.66, z]}>
+            <boxGeometry args={[9.25, 3.2, 0.025]} />
+
             <meshPhysicalMaterial
-              color="#a9e9dd"
+              color="#9ee6d4"
               transparent
-              opacity={0.17}
+              opacity={0.18}
+              roughness={0.07}
               depthWrite={false}
-              roughness={0.08}
               side={THREE.DoubleSide}
             />
           </mesh>
 
-          {[-4.65, -2.325, 0, 2.325, 4.65].map((x) => (
-            <Beam
+          {[-4.65, -2.32, 0, 2.32, 4.65].map((x) => (
+            <Block
               key={`${z}-${x}`}
-              position={[x, 1.65, z]}
-              size={[0.105, 3.3, 0.105]}
-              color="#78958a"
+              position={[x, 1.7, z]}
+              size={[0.1, 3.4, 0.1]}
+              color="#578a79"
             />
           ))}
 
-          <Beam
-            position={[0, 3.3, z]}
-            size={[9.35, 0.12, 0.1]}
-            color="#a3c0ad"
+          <Block
+            position={[0, 3.38, z]}
+            size={[9.35, 0.09, 0.1]}
+            color="#8fb8a1"
           />
         </group>
       ))}
@@ -134,470 +142,595 @@ function Enclosure() {
   );
 }
 
-function Lamp({ x, z }: { x: number; z: number }) {
+/*
+ * Cada torre tiene:
+ * - Un reflector físico.
+ * - Un haz exterior de luz.
+ * - Un haz interior más intenso.
+ * - Un círculo de iluminación sobre el terreno.
+ *
+ * Los conos siempre apuntan desde su torre
+ * hacia el objetivo que controla el mouse.
+ */
+function LightTower({
+  x,
+  z,
+  aim,
+  glowMap,
+  brightness,
+}: {
+  x: number;
+  z: number;
+  aim: React.RefObject<THREE.Vector3>;
+  glowMap: THREE.Texture;
+  brightness: React.RefObject<number>;
+}) {
+  const source = useMemo(
+    () => new THREE.Vector3(x, 4.95, z),
+    [x, z],
+  );
+
+  const destination = useMemo(
+    () => new THREE.Vector3(),
+    [],
+  );
+
+  const direction = useMemo(
+    () => new THREE.Vector3(),
+    [],
+  );
+
+  const midpoint = useMemo(
+    () => new THREE.Vector3(),
+    [],
+  );
+
+  const lightTarget = useMemo(
+    () => new THREE.Object3D(),
+    [],
+  );
+
+  const outer = useRef<
+    THREE.Mesh<THREE.ConeGeometry, THREE.MeshBasicMaterial>
+  >(null);
+
+  const inner = useRef<
+    THREE.Mesh<THREE.ConeGeometry, THREE.MeshBasicMaterial>
+  >(null);
+
+  const floorGlow = useRef<
+    THREE.Mesh<THREE.PlaneGeometry, THREE.MeshBasicMaterial>
+  >(null);
+
+  const spotlight = useRef<THREE.SpotLight>(null);
+
+  useFrame((_, delta) => {
+    const dt = Math.min(delta, 0.05);
+
+    destination.copy(aim.current);
+
+    lightTarget.position.lerp(
+      destination,
+      1 - Math.exp(-9 * dt),
+    );
+
+    lightTarget.updateMatrixWorld();
+
+    const distance = direction
+      .subVectors(source, lightTarget.position)
+      .length();
+
+    direction.normalize();
+
+    midpoint
+      .copy(source)
+      .add(lightTarget.position)
+      .multiplyScalar(0.5);
+
+    // Orientar ambos conos hacia el objetivo.
+    for (const cone of [outer.current, inner.current]) {
+      if (!cone) continue;
+
+      cone.position.copy(midpoint);
+
+      cone.quaternion.setFromUnitVectors(
+        UP,
+        direction,
+      );
+
+      cone.scale.set(1, distance, 1);
+    }
+
+    const opacity = brightness.current;
+
+    if (outer.current) {
+      outer.current.material.opacity = 0.14 * opacity;
+    }
+
+    if (inner.current) {
+      inner.current.material.opacity = 0.23 * opacity;
+    }
+
+    if (spotlight.current) {
+      spotlight.current.intensity = 28 * opacity;
+    }
+
+    if (floorGlow.current) {
+      floorGlow.current.position.x =
+        lightTarget.position.x;
+
+      floorGlow.current.position.z =
+        lightTarget.position.z;
+
+      floorGlow.current.material.opacity =
+        0.65 * opacity;
+    }
+  });
+
   return (
     <group>
-      <Beam
-        position={[x, 2.5, z]}
-        size={[0.12, 5, 0.12]}
-        color="#7b9985"
+      {/* Torre metálica */}
+      <Block
+        position={[x, 2.55, z]}
+        size={[0.13, 5.1, 0.13]}
+        color="#617f71"
       />
 
-      <Beam
-        position={[x, 5.07, z]}
-        size={[1.16, 0.17, 0.58]}
-        color="#0d201b"
+      {/* Cabezal del reflector */}
+      <Block
+        position={[x, 5.1, z]}
+        size={[1.12, 0.22, 0.68]}
+        color="#11271f"
       />
 
-      <Beam
+      {/* Superficie luminosa */}
+      <Block
         position={[x, 4.94, z]}
-        size={[1.04, 0.045, 0.4]}
-        color="#f0ffc7"
-        emissive
+        size={[0.95, 0.06, 0.43]}
+        color="#eeffca"
+        glow
       />
 
       <pointLight
-        position={[x, 4.75, z]}
-        intensity={4}
-        distance={11}
-        decay={2}
-        color="#ecffd4"
+        position={[x, 4.88, z]}
+        intensity={3}
+        distance={8}
+        color="#e9ffbf"
       />
+
+      {/* Objetivo móvil de la iluminación */}
+      <primitive object={lightTarget} />
+
+      <spotLight
+        ref={spotlight}
+        position={[x, 4.95, z]}
+        target={lightTarget}
+        color="#dfff93"
+        angle={0.28}
+        penumbra={0.84}
+        distance={19}
+        intensity={0}
+        decay={2}
+      />
+
+      {/* Haz exterior volumétrico */}
+      <mesh ref={outer} renderOrder={6}>
+        <coneGeometry args={[1.65, 1, 28, 1, true]} />
+
+        <meshBasicMaterial
+          color="#baff85"
+          transparent
+          opacity={0}
+          side={THREE.DoubleSide}
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+          toneMapped={false}
+        />
+      </mesh>
+
+      {/* Núcleo luminoso del rayo */}
+      <mesh ref={inner} renderOrder={7}>
+        <coneGeometry args={[0.74, 1, 24, 1, true]} />
+
+        <meshBasicMaterial
+          color="#eaffc7"
+          transparent
+          opacity={0}
+          side={THREE.DoubleSide}
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+          toneMapped={false}
+        />
+      </mesh>
+
+      {/* Reflejo sobre el césped */}
+      <mesh
+        ref={floorGlow}
+        rotation={[-Math.PI / 2, 0, 0]}
+        position={[0, 0.14, 0]}
+        renderOrder={8}
+      >
+        <planeGeometry args={[3.3, 3.3]} />
+
+        <meshBasicMaterial
+          map={glowMap}
+          transparent
+          opacity={0}
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+          toneMapped={false}
+        />
+      </mesh>
     </group>
   );
 }
 
-function CourtScene({
+function Arena({
   cursor,
   reducedMotion,
 }: {
   cursor: React.RefObject<Cursor>;
   reducedMotion: boolean;
 }) {
-  const arena = useRef<THREE.Group>(null);
-  const enclosure = useRef<THREE.Group>(null);
-  const beam = useRef<THREE.SpotLight>(null);
-  const movingBall = useRef<THREE.Mesh>(null);
+  const root = useRef<THREE.Group>(null);
+  const walls = useRef<THREE.Group>(null);
+  const ball = useRef<THREE.Mesh>(null);
 
-  const floorLight = useRef<
-    THREE.Mesh<
-      THREE.PlaneGeometry,
-      THREE.MeshBasicMaterial
-    >
-  >(null);
+  const aim = useRef(
+    new THREE.Vector3(0, 0.14, 0),
+  );
 
-  const target = useMemo(
-    () => new THREE.Object3D(),
+  const brightness = useRef(0);
+
+  const raycaster = useMemo(
+    () => new THREE.Raycaster(),
     [],
   );
 
-  const halo = useMemo(createHalo, []);
-  const raycaster = useMemo(() => new THREE.Raycaster(), []);
-
-  const plane = useMemo(
-    () =>
-      new THREE.Plane(
-        new THREE.Vector3(0, 1, 0),
-        -0.16,
-      ),
-    [],
-  );
-
-  const projected = useMemo(
-    () => new THREE.Vector3(),
-    [],
-  );
-
-  const ndc = useMemo(
+  const mouse = useMemo(
     () => new THREE.Vector2(),
     [],
   );
 
-  const seconds = useRef(0);
-  const reveal = useRef(reducedMotion ? 1 : 0);
-  const smooth = useRef({ x: 0, z: 0 });
+  const floorPlane = useMemo(
+    () => new THREE.Plane(
+      new THREE.Vector3(0, 1, 0),
+      -0.14,
+    ),
+    [],
+  );
+
+  const worldHit = useMemo(
+    () => new THREE.Vector3(),
+    [],
+  );
+
+  const localHit = useMemo(
+    () => new THREE.Vector3(),
+    [],
+  );
+
+  const texture = useMemo(
+    makeGlowTexture,
+    [],
+  );
+
+  const elapsed = useRef(0);
 
   useEffect(
-    () => () => halo.dispose(),
-    [halo],
+    () => () => texture.dispose(),
+    [texture],
   );
 
   useFrame(({ camera }, delta) => {
     const dt = Math.min(delta, 0.05);
-    seconds.current += dt;
+    elapsed.current += dt;
 
-    const t = seconds.current;
+    const t = elapsed.current;
 
-    reveal.current = reducedMotion
+    /*
+     * GIRO CINEMATOGRÁFICO:
+     * 360° en 3.1 segundos.
+     * Comienza rápido y termina suavemente.
+     */
+    const progress = reducedMotion
       ? 1
-      : Math.min(1, reveal.current + dt / 1.8);
+      : Math.min(1, t / 3.1);
 
-    const entrance =
-      1 - (1 - reveal.current) ** 3;
+    const easeOut =
+      1 - Math.pow(1 - progress, 3);
 
-    // Sin mouse: iluminación ambiental suave.
-    // Con movimiento reducido: el foco permanece quieto.
+    const turn =
+      Math.PI * 2 * (1 - easeOut);
+
+    if (root.current) {
+      root.current.rotation.y =
+        turn + (
+          progress === 1 && cursor.current.active
+            ? cursor.current.x * 0.055
+            : 0
+        );
+
+      root.current.position.y = reducedMotion
+        ? 0
+        : Math.sin(t * 0.75) * 0.045;
+
+      root.current.scale.setScalar(
+        reducedMotion
+          ? 1
+          : 0.92 + 0.08 * easeOut,
+      );
+
+      root.current.updateWorldMatrix(
+        true,
+        false,
+      );
+    }
+
+    /*
+     * Las paredes se elevan durante
+     * la presentación.
+     */
+    const rise = reducedMotion
+      ? 1
+      : Math.min(
+          1,
+          Math.max(0, (t - 0.35) / 1.8),
+        );
+
+    if (walls.current) {
+      walls.current.position.y =
+        -3.4 * Math.pow(1 - rise, 3);
+    }
+
+    brightness.current = reducedMotion
+      ? 1
+      : Math.min(
+          1,
+          Math.max(0, (t - 0.45) / 1.15),
+        );
+
+    /*
+     * PUNTO BAJO EL CURSOR:
+     * proyectamos el mouse al mundo 3D
+     * y lo convertimos a coordenadas locales.
+     *
+     * Así los rayos siguen apuntando
+     * correctamente aunque la cancha gire.
+     */
     let desiredX = reducedMotion
       ? 0
-      : Math.sin(t * 0.43) * 1.4;
+      : Math.sin(t * 0.3) * 0.9;
 
     let desiredZ = reducedMotion
       ? 0
-      : Math.cos(t * 0.32) * 2.1;
+      : Math.cos(t * 0.24) * 1.45;
 
-    // Con mouse: calcular el punto real sobre el suelo 3D.
-    if (cursor.current.active) {
-      ndc.set(
-        cursor.current.ndcX,
-        cursor.current.ndcY,
+    if (cursor.current.active && root.current) {
+      mouse.set(
+        cursor.current.x,
+        cursor.current.y,
       );
 
-      raycaster.setFromCamera(ndc, camera);
-
-      const hit = raycaster.ray.intersectPlane(
-        plane,
-        projected,
+      raycaster.setFromCamera(
+        mouse,
+        camera,
       );
 
-      if (hit) {
+      if (
+        raycaster.ray.intersectPlane(
+          floorPlane,
+          worldHit,
+        )
+      ) {
+        localHit.copy(worldHit);
+
+        root.current.worldToLocal(localHit);
+
         desiredX = THREE.MathUtils.clamp(
-          hit.x,
-          -4,
-          4,
+          localHit.x,
+          -4.05,
+          4.05,
         );
 
         desiredZ = THREE.MathUtils.clamp(
-          hit.z,
+          localHit.z,
           -7.5,
           7.5,
         );
       }
     }
 
-    smooth.current.x = THREE.MathUtils.damp(
-      smooth.current.x,
+    aim.current.x = THREE.MathUtils.damp(
+      aim.current.x,
       desiredX,
-      6,
+      7,
       dt,
     );
 
-    smooth.current.z = THREE.MathUtils.damp(
-      smooth.current.z,
+    aim.current.z = THREE.MathUtils.damp(
+      aim.current.z,
       desiredZ,
-      6,
+      7,
       dt,
     );
 
-    // Posición del objetivo del reflector.
-    target.position.set(
-      smooth.current.x,
-      0.16,
-      smooth.current.z,
-    );
-
-    target.updateMatrixWorld();
-
-    // Halo sobre la cancha.
-    if (floorLight.current) {
-      floorLight.current.position.x =
-        smooth.current.x;
-
-      floorLight.current.position.z =
-        smooth.current.z;
-
-      floorLight.current.material.opacity =
-        THREE.MathUtils.damp(
-          floorLight.current.material.opacity,
-          cursor.current.active ? 0.98 : 0.53,
-          4,
-          dt,
-        );
-
-      const desiredScale =
-        cursor.current.active ? 1.1 : 0.8;
-
-      floorLight.current.scale.setScalar(
-        THREE.MathUtils.damp(
-          floorLight.current.scale.x,
-          desiredScale,
-          4,
-          dt,
-        ),
+    // Pelota en movimiento.
+    if (ball.current && !reducedMotion) {
+      ball.current.position.set(
+        1.2 + Math.cos(t * 0.9) * 0.6,
+        0.65 + Math.abs(Math.sin(t * 1.7)) * 0.95,
+        -0.8 + Math.sin(t * 0.9) * 1.2,
       );
     }
-
-    // Reflector físico 3D.
-    if (beam.current) {
-      beam.current.position.set(
-        smooth.current.x + 0.8,
-        9.5,
-        smooth.current.z + 0.4,
-      );
-
-      beam.current.intensity = THREE.MathUtils.damp(
-        beam.current.intensity,
-        (cursor.current.active ? 100 : 58) * entrance,
-        3,
-        dt,
-      );
-    }
-
-    // Animación inicial de los cristales.
-    if (enclosure.current) {
-      enclosure.current.position.y =
-        -3.45 * (1 - entrance);
-    }
-
-    // Flotación ambiental.
-    if (arena.current) {
-      arena.current.position.y = reducedMotion
-        ? 0
-        : Math.sin(t * 0.8) * 0.045;
-    }
-
-    // Pelota animada.
-    if (movingBall.current && !reducedMotion) {
-      movingBall.current.position.set(
-        1.25 + Math.cos(t * 0.9) * 0.8,
-        0.36 + Math.abs(Math.sin(t * 1.8)) * 1.15,
-        -0.9 + Math.sin(t * 0.9) * 1.35,
-      );
-    }
-
-    // Movimiento de cámara muy sutil.
-    camera.position.x = THREE.MathUtils.damp(
-      camera.position.x,
-      14.5 + (
-        cursor.current.active && !reducedMotion
-          ? cursor.current.ndcX * 0.6
-          : 0
-      ),
-      2,
-      dt,
-    );
-
-    camera.position.y = THREE.MathUtils.damp(
-      camera.position.y,
-      17.5,
-      2,
-      dt,
-    );
-
-    camera.position.z = THREE.MathUtils.damp(
-      camera.position.z,
-      24 + (
-        cursor.current.active && !reducedMotion
-          ? -cursor.current.ndcY * 0.6
-          : 0
-      ),
-      2,
-      dt,
-    );
-
-    camera.lookAt(0, 0, 0);
   });
 
   return (
     <>
       <ambientLight
-        intensity={0.68}
-        color="#b9e6d0"
+        color="#c5e9dc"
+        intensity={0.92}
       />
 
       <directionalLight
-        intensity={1.8}
-        position={[7, 12, 8]}
-        color="#e4ffe1"
+        position={[8, 15, 9]}
+        intensity={2}
+        color="#efffe7"
       />
 
       <pointLight
-        intensity={14}
-        position={[-8, 7, -6]}
-        color="#58ccb7"
-        distance={30}
-        decay={2}
+        position={[-10, 8, -9]}
+        intensity={20}
+        distance={32}
+        color="#63dbb7"
       />
 
-      <primitive object={target} />
-
-      <spotLight
-        ref={beam}
-        target={target}
-        position={[1, 9.5, 0]}
-        intensity={0}
-        angle={0.43}
-        penumbra={0.85}
-        distance={22}
-        decay={2}
-        color={LIME}
-      />
-
-      <group ref={arena}>
+      {/* Todo gira dentro del mismo grupo */}
+      <group ref={root}>
         {/* Base flotante */}
-        <Beam
-          position={[0, -0.65, 0]}
-          size={[10.35, 0.95, 17.5]}
-          color="#102c24"
+        <Block
+          position={[0, -0.64, 0]}
+          size={[10.4, 0.9, 17.55]}
+          color="#0c3026"
         />
 
-        <Beam
+        <Block
           position={[0, -1.12, 0]}
-          size={[10.48, 0.08, 17.64]}
+          size={[10.5, 0.075, 17.7]}
           color={LIME}
-          emissive
+          glow
         />
 
-        <Beam
+        <Block
           position={[0, -0.18, 0]}
-          size={[9.52, 0.34, 16.95]}
-          color="#104d46"
+          size={[9.5, 0.36, 16.9]}
+          color="#0e5a51"
         />
 
-        {/* Superficie */}
+        {/* Superficie de juego */}
         <mesh
-          position={[0, 0.035, 0]}
           rotation={[-Math.PI / 2, 0, 0]}
+          position={[0, 0.035, 0]}
         >
-          <planeGeometry args={[9.24, 16.45]} />
+          <planeGeometry args={[9.2, 16.38]} />
 
           <meshStandardMaterial
-            color="#147568"
-            roughness={0.95}
-            metalness={0}
+            color="#187d71"
+            roughness={0.92}
           />
         </mesh>
 
         {/* Líneas laterales */}
-        {[-4.34, 4.34].map((x) => (
-          <Beam
+        {[-4.32, 4.32].map((x) => (
+          <Block
             key={`side-${x}`}
-            position={[x, 0.095, 0]}
-            size={[0.065, 0.022, 15.72]}
-            color="#f3ffed"
-            emissive
+            position={[x, 0.096, 0]}
+            size={[0.06, 0.016, 15.72]}
+            color="#e7fff3"
+            glow
           />
         ))}
 
         {/* Líneas de fondo y servicio */}
-        {[-7.86, 7.86, -5.1, 5.1].map((z) => (
-          <Beam
-            key={`end-${z}`}
-            position={[0, 0.095, z]}
-            size={[8.78, 0.022, 0.065]}
-            color="#f3ffed"
-            emissive
+        {[-7.83, 7.83, -5.06, 5.06].map((z) => (
+          <Block
+            key={`line-${z}`}
+            position={[0, 0.096, z]}
+            size={[8.72, 0.016, 0.065]}
+            color="#e7fff3"
+            glow
           />
         ))}
 
         {/* Líneas centrales */}
-        {[-2.55, 2.55].map((z) => (
-          <Beam
-            key={`mid-${z}`}
-            position={[0, 0.095, z]}
-            size={[0.065, 0.022, 5.1]}
-            color="#f3ffed"
-            emissive
+        {[-2.53, 2.53].map((z) => (
+          <Block
+            key={`center-${z}`}
+            position={[0, 0.096, z]}
+            size={[0.065, 0.016, 5.06]}
+            color="#e7fff3"
+            glow
           />
         ))}
 
-        {/* LED del perímetro */}
+        {/* Contorno LED */}
         {[-4.59, 4.59].map((x) => (
-          <Beam
-            key={`led-side-${x}`}
+          <Block
+            key={`edge-x-${x}`}
             position={[x, 0.11, 0]}
-            size={[0.07, 0.07, 16.48]}
+            size={[0.07, 0.045, 16.5]}
             color={LIME}
-            emissive
+            glow
           />
         ))}
 
-        {[-8.23, 8.23].map((z) => (
-          <Beam
-            key={`led-end-${z}`}
+        {[-8.24, 8.24].map((z) => (
+          <Block
+            key={`edge-z-${z}`}
             position={[0, 0.11, z]}
-            size={[9.26, 0.07, 0.07]}
+            size={[9.26, 0.045, 0.07]}
             color={LIME}
-            emissive
+            glow
           />
         ))}
 
         {/* Red */}
-        <mesh position={[0, 0.86, 0]}>
-          <planeGeometry args={[9.25, 1.46, 40, 8]} />
+        <mesh position={[0, 0.82, 0]}>
+          <planeGeometry args={[9.25, 1.42, 38, 8]} />
 
           <meshBasicMaterial
-            color="#d7f0df"
-            wireframe
-            opacity={0.33}
+            color="#d0e7d7"
             transparent
-            side={THREE.DoubleSide}
+            opacity={0.4}
+            wireframe
             depthWrite={false}
+            side={THREE.DoubleSide}
           />
         </mesh>
 
-        <Beam
-          position={[0, 1.6, 0]}
-          size={[9.3, 0.07, 0.07]}
-          color="#f3fff6"
-          emissive
+        <Block
+          position={[0, 1.55, 0]}
+          size={[9.32, 0.07, 0.07]}
+          color="#f4fff2"
+          glow
         />
 
-        {[-4.58, 4.58].map((x) => (
-          <Beam
+        {[-4.63, 4.63].map((x) => (
+          <Block
             key={`net-${x}`}
-            position={[x, 0.87, 0]}
-            size={[0.1, 1.74, 0.12]}
-            color="#183128"
+            position={[x, 0.84, 0]}
+            size={[0.11, 1.68, 0.11]}
+            color="#18392c"
           />
         ))}
 
-        {/* Paredes y reflectores */}
-        <group ref={enclosure}>
-          <Enclosure />
+        {/* Cristales y cuatro torres de iluminación */}
+        <group ref={walls}>
+          <GlassWalls />
 
-          {[-5.2, 5.2].flatMap((x) =>
-            [-7.28, 7.28].map((z) => (
-              <Lamp
-                key={`${x}-${z}`}
-                x={x}
-                z={z}
-              />
-            )),
-          )}
+          {TOWERS.map(([x, z]) => (
+            <LightTower
+              key={`${x}-${z}`}
+              x={x}
+              z={z}
+              aim={aim}
+              glowMap={texture}
+              brightness={brightness}
+            />
+          ))}
         </group>
 
-        {/* Pelota */}
+        {/* Pelota animada */}
         <mesh
-          ref={movingBall}
-          position={[1.25, 0.8, -0.9]}
+          ref={ball}
+          position={[1.25, 1.0, -0.8]}
         >
-          <sphereGeometry args={[0.2, 18, 18]} />
+          <sphereGeometry args={[0.18, 20, 20]} />
 
           <meshStandardMaterial
-            color="#e5ff68"
-            emissive="#92c343"
-            emissiveIntensity={0.35}
-          />
-        </mesh>
-
-        {/* Luz móvil directamente sobre el terreno */}
-        <mesh
-          ref={floorLight}
-          position={[0, 0.16, 0]}
-          rotation={[-Math.PI / 2, 0, 0]}
-          renderOrder={10}
-        >
-          <planeGeometry args={[6.4, 6.4]} />
-
-          <meshBasicMaterial
-            map={halo}
-            color="#eaffb7"
-            transparent
-            opacity={0.55}
-            blending={THREE.AdditiveBlending}
-            depthWrite={false}
-            depthTest={false}
-            toneMapped={false}
+            color="#dfff62"
+            emissive="#96c53d"
+            emissiveIntensity={0.34}
           />
         </mesh>
       </group>
@@ -619,11 +752,7 @@ class SceneBoundary extends Component<
   }
 
   componentDidCatch(error: Error) {
-    console.error(
-      '[RITMO 3D] No se pudo dibujar la escena:',
-      error,
-    );
-
+    console.error('[RITMO 3D] Error WebGL:', error);
     this.props.onFailure();
   }
 
@@ -638,55 +767,53 @@ export function HeroCourt3D() {
   const root = useRef<HTMLDivElement>(null);
 
   const cursor = useRef<Cursor>({
-    ndcX: 0,
-    ndcY: 0,
+    x: 0,
+    y: 0,
     active: false,
   });
 
-  const [mode, setMode] = useState<
-    'webgl' | 'fallback' | 'checking'
-  >('checking');
-
+  const [supported, setSupported] = useState(false);
   const [ready, setReady] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
 
   useEffect(() => {
-    const reduced = window.matchMedia(
-      '(prefers-reduced-motion: reduce)',
-    ).matches;
-
-    setReducedMotion(reduced);
+    setReducedMotion(
+      window.matchMedia(
+        '(prefers-reduced-motion: reduce)',
+      ).matches,
+    );
 
     try {
-      const probe = document.createElement('canvas');
+      const canvas = document.createElement('canvas');
 
-      setMode(
-        probe.getContext('webgl2')
-          ? 'webgl'
-          : 'fallback',
+      setSupported(
+        Boolean(canvas.getContext('webgl2')),
       );
     } catch {
-      setMode('fallback');
+      setSupported(false);
     }
 
     /*
-     * No desactivamos la interacción por movimiento reducido.
-     * Esa preferencia solo elimina el movimiento decorativo.
+     * Escuchamos el mouse desde la ventana,
+     * evitando interferencias con las capas
+     * del Hero.
      */
-    const updatePosition = (
-      clientX: number,
-      clientY: number,
-    ) => {
+    const onMove = (event: MouseEvent) => {
       const element = root.current;
+
       if (!element) return;
 
-      const rect = element.getBoundingClientRect();
+      const stage =
+        element.closest<HTMLElement>('.hero-stage') ??
+        element;
+
+      const bounds = stage.getBoundingClientRect();
 
       const inside =
-        clientX >= rect.left &&
-        clientX <= rect.right &&
-        clientY >= rect.top &&
-        clientY <= rect.bottom;
+        event.clientX >= bounds.left &&
+        event.clientX <= bounds.right &&
+        event.clientY >= bounds.top &&
+        event.clientY <= bounds.bottom;
 
       cursor.current.active = inside;
 
@@ -698,67 +825,44 @@ export function HeroCourt3D() {
       const canvasRect =
         element
           .querySelector('canvas')
-          ?.getBoundingClientRect() ?? rect;
+          ?.getBoundingClientRect() ??
+        element.getBoundingClientRect();
 
-      if (!canvasRect.width || !canvasRect.height) {
+      if (
+        !canvasRect.width ||
+        !canvasRect.height
+      ) {
         return;
       }
 
-      const u = THREE.MathUtils.clamp(
-        (clientX - canvasRect.left) / canvasRect.width,
-        0,
+      cursor.current.x = THREE.MathUtils.clamp(
+        (
+          (event.clientX - canvasRect.left) /
+          canvasRect.width
+        ) * 2 - 1,
+        -1,
         1,
       );
 
-      const v = THREE.MathUtils.clamp(
-        (clientY - canvasRect.top) / canvasRect.height,
-        0,
+      cursor.current.y = THREE.MathUtils.clamp(
+        1 - (
+          (event.clientY - canvasRect.top) /
+          canvasRect.height
+        ) * 2,
+        -1,
         1,
       );
-
-      cursor.current.ndcX = u * 2 - 1;
-      cursor.current.ndcY = 1 - v * 2;
 
       element.dataset.pointer = 'active';
-
-      element.style.setProperty(
-        '--cursor-x',
-        `${(u * 100).toFixed(1)}%`,
-      );
-
-      element.style.setProperty(
-        '--cursor-y',
-        `${(v * 100).toFixed(1)}%`,
-      );
-    };
-
-    const onPointerMove = (event: PointerEvent) => {
-      if (event.pointerType !== 'touch') {
-        updatePosition(event.clientX, event.clientY);
-      }
-    };
-
-    const onMouseMove = (event: MouseEvent) => {
-      updatePosition(event.clientX, event.clientY);
     };
 
     const onBlur = () => {
       cursor.current.active = false;
-
-      if (root.current) {
-        delete root.current.dataset.pointer;
-      }
     };
 
     window.addEventListener(
-      'pointermove',
-      onPointerMove,
-      { passive: true },
-    );
-
-    window.addEventListener(
       'mousemove',
-      onMouseMove,
+      onMove,
       { passive: true },
     );
 
@@ -766,13 +870,8 @@ export function HeroCourt3D() {
 
     return () => {
       window.removeEventListener(
-        'pointermove',
-        onPointerMove,
-      );
-
-      window.removeEventListener(
         'mousemove',
-        onMouseMove,
+        onMove,
       );
 
       window.removeEventListener('blur', onBlur);
@@ -785,13 +884,10 @@ export function HeroCourt3D() {
       className={`hero-3d ${
         ready ? 'hero-3d--ready' : ''
       }`}
-      data-reduced-motion={
-        reducedMotion ? 'true' : 'false'
-      }
       role="img"
-      aria-label="Cancha de pádel 3D con iluminación interactiva"
+      aria-label="Cancha de pádel 3D que gira 360 grados y tiene cuatro reflectores interactivos"
     >
-      {/* Respaldo si WebGL no está disponible */}
+      {/* Respaldo para navegadores sin WebGL */}
       <div
         className="hero-3d__fallback"
         aria-hidden="true"
@@ -799,17 +895,11 @@ export function HeroCourt3D() {
         <CourtArt variant="hero" />
       </div>
 
-      {/* Reflejo visible independiente del motor 3D */}
-      <div
-        className="hero-3d__cursor-glow"
-        aria-hidden="true"
-      />
-
-      {mode === 'webgl' && (
+      {supported && (
         <SceneBoundary
           onFailure={() => {
+            setSupported(false);
             setReady(false);
-            setMode('fallback');
           }}
         >
           <div
@@ -820,10 +910,10 @@ export function HeroCourt3D() {
               dpr={[1, 1.5]}
               frameloop="always"
               camera={{
-                position: [14.5, 17.5, 24],
-                fov: 38,
+                position: [16, 19, 27],
+                fov: 40,
                 near: 0.1,
-                far: 80,
+                far: 90,
               }}
               gl={{
                 alpha: true,
@@ -832,7 +922,7 @@ export function HeroCourt3D() {
               }}
               onCreated={() => setReady(true)}
             >
-              <CourtScene
+              <Arena
                 cursor={cursor}
                 reducedMotion={reducedMotion}
               />
@@ -841,7 +931,7 @@ export function HeroCourt3D() {
         </SceneBoundary>
       )}
 
-      {mode === 'webgl' && (
+      {supported && ready && (
         <div
           className="hero-3d__hint"
           aria-hidden="true"
@@ -849,11 +939,11 @@ export function HeroCourt3D() {
           <span className="hero-3d__hint-dot" />
 
           <span className="hero-3d__hint-idle">
-            MOVÉ EL MOUSE · CONTROLÁ LAS LUCES
+            360° ARENA · MOVÉ EL MOUSE
           </span>
 
           <span className="hero-3d__hint-active">
-            LUZ SIGUIENDO EL MOUSE
+            LOS 4 REFLECTORES SIGUEN TU MOUSE
           </span>
         </div>
       )}
