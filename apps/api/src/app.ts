@@ -1,5 +1,6 @@
 
 import 'express-async-errors';
+
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import compression from 'compression';
@@ -25,6 +26,10 @@ export const app = express();
 
 app.disable('x-powered-by');
 app.set('trust proxy', 1);
+
+/* ==========================================
+   CABECERAS DE SEGURIDAD
+========================================== */
 
 app.use(
   helmet({
@@ -57,22 +62,69 @@ app.use(
 
 app.use(compression());
 
+/* ==========================================
+   LOGGING SEGURO Y OBSERVABILIDAD
+========================================== */
+
 app.use(
   pinoHttp({
     logger,
+
     autoLogging: {
       ignore: (req: IncomingMessage) =>
         req.url === '/api/health',
     },
-    redact: [
-      'req.headers.cookie',
-      'req.headers.authorization',
-    ],
+
+    // Pino HTTP utiliza un logger hijo.
+    // Definimos todas las rutas sensibles para
+    // conservar la protección de redacción.
+    redact: {
+      paths: [
+        'req.headers.cookie',
+        'req.headers.authorization',
+        'req.headers["x-api-key"]',
+        'req.headers["proxy-authorization"]',
+
+        // La respuesta puede contener el JWT
+        // completo en Set-Cookie.
+        'res.headers["set-cookie"]',
+        'res.headers.authorization',
+        'res.headers["x-api-key"]',
+
+        'req.body.password',
+        'req.body.passwordHash',
+        'req.body.password_hash',
+        'req.body.token',
+
+        'req.query.token',
+        'req.query.apiKey',
+
+        'password',
+        'passwordHash',
+        'password_hash',
+        'token',
+      ],
+
+      censor: '[REDACTED]',
+    },
   }),
 );
 
-app.use(express.json({ limit: '64kb' }));
+/* ==========================================
+   PARSEO DE SOLICITUDES
+========================================== */
+
+app.use(
+  express.json({
+    limit: '64kb',
+  }),
+);
+
 app.use(cookieParser());
+
+/* ==========================================
+   LIMITACIÓN DE PETICIONES
+========================================== */
 
 app.use(
   '/api',
@@ -84,8 +136,14 @@ app.use(
   }),
 );
 
+/* ==========================================
+   PROTECCIÓN DE ORIGEN
+========================================== */
+
 // Cookies de sesión en el mismo origen.
-// Se rechazan peticiones mutantes desde otros orígenes.
+// Se rechazan peticiones mutantes desde
+// orígenes diferentes al configurado.
+
 app.use('/api', (req, res, next) => {
   if (
     !['POST', 'PUT', 'PATCH', 'DELETE'].includes(
@@ -126,6 +184,10 @@ app.use('/api', (req, res, next) => {
   next();
 });
 
+/* ==========================================
+   HEALTH CHECK
+========================================== */
+
 app.get('/api/health', async (_req, res) => {
   res.json({
     status: 'ok',
@@ -133,11 +195,23 @@ app.get('/api/health', async (_req, res) => {
   });
 });
 
+/* ==========================================
+   AUTENTICACIÓN Y RUTAS
+========================================== */
+
 app.use('/api', attachSession);
+
 app.use('/api/auth', authRouter);
+
 app.use('/api/public', publicRouter);
+
 app.use('/api/bookings', bookingRouter);
+
 app.use('/api/admin', adminRouter);
+
+/* ==========================================
+   RUTAS NO ENCONTRADAS
+========================================== */
 
 app.use('/api', (_req, _res, next) =>
   next(
@@ -149,7 +223,13 @@ app.use('/api', (_req, _res, next) =>
   ),
 );
 
-// Express puede servir también el frontend compilado.
+/* ==========================================
+   FRONTEND COMPILADO
+========================================== */
+
+// Express puede servir también
+// el frontend compilado.
+
 const webDist = resolve(
   dirname(fileURLToPath(import.meta.url)),
   '../../../apps/web/dist',
@@ -199,5 +279,9 @@ if (existsSync(webDist)) {
     );
   });
 }
+
+/* ==========================================
+   MANEJO GLOBAL DE ERRORES
+========================================== */
 
 app.use(errorHandler);
