@@ -1,0 +1,228 @@
+
+/* RITMO PÁDEL — Bloque 3: experiencia premium de reservas.
+   Diseño encapsulado: no altera el Hero ni las cuatro tarjetas del Home. */
+
+.booking-premium {
+  --booking-ink: #163326;
+  --booking-accent: #cffa61;
+  --booking-ease: cubic-bezier(.2, .78, .2, 1);
+}
+
+.booking-premium__intro { padding-bottom: 32px; }
+.booking-premium__progress {
+  margin-top: 25px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  color: #527354;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .025em;
+}
+.booking-premium__progress > span:not(.booking-premium__progress-line) { display: inline-flex; align-items: center; gap: 7px; }
+.booking-premium__progress svg { color: #648d40; }
+.booking-premium__progress-line { width: 26px; height: 1px; background: #b6c6b0; }
+.booking-premium__step {
+  overflow: hidden;
+  border-radius: 12px;
+  border-color: #dce7d8;
+  box-shadow: 0 8px 38px rgba(19, 52, 27, .035);
+}
+.booking-premium__step .booking-step__header { margin-bottom: 22px; }
+.booking-premium__step .booking-step__header > svg { color: #648f58; }
+
+/* Navegación de fechas */
+.booking-premium__date-heading { display: flex; justify-content: space-between; align-items: center; gap: 14px; margin-bottom: 18px; }
+.booking-premium__date-heading > div:first-child { display: grid; gap: 4px; }
+.booking-premium__date-heading strong { text-transform: capitalize; font: 700 15px 'Space Grotesk',sans-serif; color: #284732; }
+.booking-premium__date-heading span { font-size: 11px; color: #87998a; }
+.booking-premium__date-controls { display: flex; gap: 7px; }
+.booking-premium__date-controls button {
+  width: 36px; height: 36px; display: grid; place-items: center;
+  background: #f5f8f1; border: 1px solid #dce8d9; border-radius: 8px;
+  color: #335139; transition: background .2s, border-color .2s, transform .2s;
+}
+.booking-premium__date-controls button:not(:disabled):hover { background: #eaf6db; border-color: #7aa550; transform: translateY(-2px); }
+.booking-premium__date-strip { display: grid; grid-template-columns: repeat(7, minmax(0,1fr)); gap: 7px; }
+.booking-premium__date {
+  position: relative; padding: 15px 4px 13px; min-width: 0;
+  background: #f7faf4; border: 1px solid #dfe9dd; border-radius: 8px;
+  display: grid; place-items: center; gap: 5px; color: #698171;
+  transition: background .23s, color .23s, border-color .23s, transform .23s, box-shadow .23s;
+}
+.booking-premium__date span { text-transform: uppercase; letter-spacing: .045em; font-size: 10px; font-weight: 800; }
+.booking-premium__date strong { font: 700 clamp(19px,2vw,27px) 'Space Grotesk',sans-serif; letter-spacing: -.04em; color: #1c3b2a; }
+.booking-premium__date small { text-transform: uppercase; font-size: 9px; font-weight: 800; }
+.booking-premium__date:not(.is-selected):hover { border-color: #97ba77; background: #f0f7e8; transform: translateY(-3px); }
+.booking-premium__date.is-selected { color: #ceff95; background: #143925; border-color: #143925; box-shadow: 0 10px 24px rgba(22, 57, 36, .16); }
+.booking-premium__date.is-selected strong { color: white; }
+.booking-premium__date.is-selected::after { content: ''; position: absolute; left: 29%; right: 29%; bottom: 6px; height: 2px; border-radius: 5px; background: #cffa61; }
+.booking-premium__date-footer { color: #748b77; font-size: 11px; padding-top: 16px; }
+.booking-premium__date-footer > span { display: inline-flex; align-items: center; gap: 8px; }
+.booking-premium__status-dot { background: #8fc95e; width: 7px; height: 7px; border-radius: 50%; box-shadow: 0 0 0 4px #dff5d3; }
+
+/* Tarjetas para elegir cancha */
+.booking-premium__courts { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
+.booking-premium__court {
+  --court-palette: #cffa61;
+  min-width: 0; display: flex; align-items: center; text-align: left; gap: 12px;
+  background: #f7faf5; border: 1px solid #e0e9dc; border-radius: 9px; padding: 11px;
+  color: #1f3b2b; transition: background .25s, border-color .25s, transform .3s var(--booking-ease),box-shadow .25s;
+}
+.booking-premium__court--teal { --court-palette: #70eddb; }
+.booking-premium__court--amber { --court-palette: #ffc37e; }
+.booking-premium__court--blue { --court-palette: #86a7ff; }
+.booking-premium__court:not(.is-selected):hover { border-color: #8fac77; transform: translateY(-3px); }
+.booking-premium__court.is-selected { background: #eff8e8; border-color: #80a958; box-shadow: 0 0 0 1px #adcf94,0 9px 21px rgba(29, 80, 31, .07); }
+.booking-premium__court-image {
+  position: relative; width: 91px; height: 83px; flex: 0 0 91px;
+  overflow: hidden; border-radius: 7px;
+  background: radial-gradient(ellipse at 50% 43%,#345e42 0%,#102d25 80%);
+}
+.booking-premium__court-image svg { position: absolute; width: 130%; max-width: none; height: 105%; top: -4%; left: -16%; }
+.booking-premium__court-text { display: grid; gap: 5px; min-width: 0; flex: 1; }
+.booking-premium__court-text > small { color: #829988; font-weight: 750; font-size: 9px; letter-spacing: .03em; }
+.booking-premium__court-text strong { font: 750 16px 'Space Grotesk',sans-serif; letter-spacing: -.04em; white-space: nowrap; }
+.booking-premium__court-text > span { font-size: 10px; color: #6b8873; }
+.booking-premium__court-text em { font-size: 10px; font-style: normal; font-weight: 750; color: #578244; }
+.booking-premium__court-check {
+  flex: 0 0 23px; width: 23px; height: 23px; border-radius: 50%;
+  display: grid; place-items: center; color: #6c8a73; border: 1px solid #cbdccc;
+  transition: transform .2s, background .2s;
+}
+.booking-premium__court.is-selected .booking-premium__court-check { background: #173d29; color: #d9ffad; border-color: #173d29; }
+.booking-premium__court:hover .booking-premium__court-check { transform: rotate(-30deg); }
+.booking-premium__updating { color: #728879; font-size: 11px; display: inline-flex; align-items: center; gap: 8px; margin: 13px 0 0; }
+.booking-premium__updating svg { animation: booking-spin .9s linear infinite; }
+
+/* Franjas horarias y slots */
+.booking-premium__hint { display: flex; gap: 9px; align-items: flex-start; margin: -6px 0 19px; color: #698270; font-size: 12px; line-height: 1.5; }
+.booking-premium__hint svg { flex: 0 0 16px; margin-top: 1px; }
+.booking-premium__periods { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 9px; margin-bottom: 22px; }
+.booking-premium__periods button {
+  min-width: 0; background: #f3f7f1; color: #456c50; border: 1px solid #dae5d8;
+  border-radius: 8px; padding: 12px 10px; display: flex; gap: 9px; align-items: center; text-align: left;
+  transition: background .2s,border-color .2s,transform .2s;
+}
+.booking-premium__periods button:not(.is-selected):hover { background: #eaf5e5; transform: translateY(-2px); }
+.booking-premium__periods button.is-selected { color: #f0ffe4; background: #143925; border-color: #143925; }
+.booking-premium__periods button > svg { flex-shrink: 0; }
+.booking-premium__periods button > span { min-width: 0; flex: 1; display: grid; gap: 2px; }
+.booking-premium__periods button strong { font-size: 12px; }
+.booking-premium__periods button small { font-size: 9px; opacity: .7; white-space: nowrap; }
+.booking-premium__periods button em { font-style: normal; font-size: 10px; font-weight: 800; opacity: .85; }
+.booking-premium__availability { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; padding-bottom: 13px; color: #647e69; }
+.booking-premium__availability > strong { font-size: 11px; color: #315e39; }
+.booking-premium__availability > span { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 7px; font-size: 10px; }
+.booking-premium__availability i { width: 7px; height: 7px; border-radius: 50%; background: #9fc978; display: inline-block; }
+.booking-premium__availability i:nth-of-type(2) { background: #d1dcd1; margin-left: 7px; }
+.booking-premium__availability i:nth-of-type(3) { background: #17432b; margin-left: 7px; }
+.booking-premium__slots { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 9px; }
+.booking-premium__slot {
+  position: relative; min-width: 0; min-height: 73px; padding: 13px 7px 11px;
+  background: #f9fbf7; color: #25412e; border: 1px solid #dae8d9; border-radius: 8px;
+  display: grid; align-content: center; justify-items: center; gap: 7px;
+  transition: background .22s, border-color .22s, transform .26s var(--booking-ease), box-shadow .22s;
+}
+.booking-premium__slot-time { display: inline-flex; align-items: center; gap: 4px; font: 750 13px 'Space Grotesk',sans-serif; white-space: nowrap; }
+.booking-premium__slot-time > svg { color: #8ba98e; }
+.booking-premium__slot small { color: #748e79; font-size: 10px; font-weight: 700; }
+.booking-premium__slot:not(:disabled):hover { transform: translateY(-3px); border-color: #87ae68; box-shadow: 0 7px 19px #234a2710; }
+.booking-premium__slot:disabled { opacity: 1; color: #aebbb0; background: #f4f6f1; border-color: #e9ede8; cursor: not-allowed; }
+.booking-premium__slot:disabled .booking-premium__slot-time > svg { color: #c1cbc2; }
+.booking-premium__slot:disabled small { color: #aab9ad; }
+.booking-premium__slot.is-selected { background: #153b27; border-color: #153b27; box-shadow: 0 8px 25px #153b2730; color: #fff; }
+.booking-premium__slot.is-selected small, .booking-premium__slot.is-selected .booking-premium__slot-time svg { color: #d3fc8b; }
+.booking-premium__slot-check { position: absolute; top: 5px; right: 5px; color: #d3fc8b; }
+.booking-premium__empty { color: #6f8873; background: #f5f8f2; border: 1px dashed #d7e6d4; border-radius: 8px; padding: 20px; font-size: 12px; }
+.booking-premium__notice { color: #9d6430; font-size: 12px; padding: 13px; border-radius: 6px; background: #fff4df; }
+.booking-premium__times-footer { display: flex; align-items: center; gap: 8px; color: #7b927e; margin-top: 19px; font-size: 11px; }
+.booking-premium__times-footer svg { color: #5a924b; }
+
+/* Resumen dinámico */
+.booking-premium__summary { position: relative; overflow: hidden; border-radius: 12px; }
+.booking-premium__summary::after { content: ''; pointer-events: none; position: absolute; top: -95px; right: -94px; width: 245px; height: 245px; border-radius: 50%; background: #8bd358; filter: blur(100px); opacity: .13; }
+.booking-premium__summary-banner { display: flex; align-items: center; gap: 8px; margin: -5px 0 21px; padding: 12px; color: #c7e4c4; background: #193a26; border-radius: 7px; font-size: 11px; }
+.booking-premium__summary-banner > svg { color: var(--booking-accent); }
+.booking-premium__summary-banner > span:nth-child(2) { flex: 1; }
+.booking-premium__summary-pill { background: #2d5632; color: #d7faab; padding: 6px 7px; border-radius: 4px; font-size: 9px; font-weight: 800; }
+.booking-premium__summary .summary-rows > div { padding: 15px 0; }
+.booking-premium__summary .summary-rows strong { max-width: 62%; }
+.booking-premium__changing { display: inline-block; animation: booking-info-in .3s var(--booking-ease); }
+.booking-premium__confirm { position: relative; transition: transform .25s,box-shadow .25s,background .25s; }
+.booking-premium__confirm:not(:disabled):hover { box-shadow: 0 10px 30px #cffa6136; }
+.booking-premium__confirm svg { transition: transform .25s; }
+.booking-premium__confirm:not(:disabled):hover svg { transform: translateX(5px); }
+.booking-premium__form-error { margin-top: 13px; line-height: 1.55; }
+
+/* Comprobante */
+.booking-receipt {
+  max-width: 790px; margin: 0 auto; border: 1px solid #d4e6cc;
+  border-radius: 16px; padding: clamp(25px,5vw,60px);
+  background: #fff; box-shadow: 0 24px 60px #1839270d;
+  color: #173523; text-align: center;
+}
+.booking-receipt__check { margin: 0 auto 18px; width: 72px; height: 72px; background: #143b27; border-radius: 50%; color: var(--booking-accent); display: grid; place-items: center; animation: booking-pop .65s var(--booking-ease) both; }
+.booking-receipt__eyebrow { color: #659448; font-size: 10px; font-weight: 850; letter-spacing: 2px; }
+.booking-receipt h2 { margin: 16px 0; font: 750 clamp(35px,6vw,64px)/.98 'Space Grotesk',sans-serif; letter-spacing: -.055em; }
+.booking-receipt h2 span { color: #789c3f; }
+.booking-receipt > p { color: #6b8271; font-size: 14px; }
+.booking-receipt__ticket { margin: 26px auto 19px; max-width: 560px; padding: 25px; color: #efffe6; text-align: left; background: linear-gradient(140deg,#153e2a,#0b2118); border-radius: 12px; border: 1px solid #456c45; }
+.booking-receipt__ticket-head { color: #bdddab; display: flex; justify-content: space-between; font-size: 10px; font-weight: 800; letter-spacing: 1px; margin-bottom: 23px; }
+.booking-receipt__ticket-head svg { color: var(--booking-accent); }
+.booking-receipt__ticket > strong { font: 750 29px 'Space Grotesk',sans-serif; }
+.booking-receipt__details { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 17px; margin: 24px 0 18px; padding: 22px 0; border-block: 1px dashed #5d765f; }
+.booking-receipt__details > div { display: grid; gap: 7px; }
+.booking-receipt__details span { font-size: 9px; font-weight: 800; letter-spacing: 1px; color: #a3c6a3; }
+.booking-receipt__details b { font-size: 13px; }
+.booking-receipt__ticket > small { color: #a6b9a7; font-size: 10px; overflow-wrap: anywhere; }
+.booking-receipt__demo { margin-inline: auto; max-width: 530px; background: #f1f6e9; border-radius: 7px; padding: 14px; color: #577052 !important; font-size: 12px !important; line-height: 1.6; }
+.booking-receipt__actions { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 23px; }
+.booking-receipt__calendar { border-color: #acc6a3; background: #f7fbf3; color: #2b5133; }
+.booking-receipt__calendar:hover { background: #eaf5df; }
+.booking-receipt__again { border: 0; background: transparent; color: #4a7547; font-size: 12px; font-weight: 800; padding: 13px; display: inline-flex; gap: 8px; align-items: center; }
+.booking-receipt__again:hover { color: #193e25; }
+
+@keyframes booking-pop { from { opacity: 0; transform: scale(.7) rotate(-20deg); } to { opacity: 1; transform: scale(1) rotate(0); } }
+@keyframes booking-info-in { from { opacity: .1; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes booking-spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 1170px) {
+  .booking-premium__courts { grid-template-columns: 1fr; }
+  .booking-premium__slots { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
+@media (max-width: 950px) {
+  .booking-premium__courts { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .booking-premium__slots { grid-template-columns: repeat(3,minmax(0,1fr)); }
+}
+@media (max-width: 650px) {
+  .booking-premium__intro { padding-bottom: 25px; }
+  .booking-premium__progress { gap: 7px; font-size: 9px; line-height: 1.6; }
+  .booking-premium__progress-line { width: 10px; }
+  .booking-premium__date-strip { gap: 4px; }
+  .booking-premium__date { padding: 11px 1px 12px; border-radius: 6px; gap: 4px; }
+  .booking-premium__date span { font-size: 8px; }
+  .booking-premium__date strong { font-size: 20px; }
+  .booking-premium__date small { font-size: 7px; }
+  .booking-premium__courts { grid-template-columns: 1fr; }
+  .booking-premium__periods { gap: 5px; }
+  .booking-premium__periods button { padding: 10px 7px; gap: 5px; flex-wrap: wrap; }
+  .booking-premium__periods button > svg { width: 15px; }
+  .booking-premium__periods button strong { font-size: 10px; }
+  .booking-premium__periods button small { font-size: 8px; }
+  .booking-premium__periods button em { font-size: 9px; }
+  .booking-premium__slots { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 7px; }
+  .booking-premium__availability { align-items: flex-start; }
+  .booking-premium__availability > span { font-size: 9px; }
+  .booking-premium__slot-time { font-size: 12px; }
+  .booking-receipt { padding: 24px 16px; }
+  .booking-receipt__ticket { padding: 18px; }
+  .booking-receipt__details { gap: 14px 8px; }
+  .booking-receipt__details b { font-size: 11px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .booking-premium *, .booking-premium *::before, .booking-premium *::after {
+    animation-duration: .01ms !important; transition-duration: .01ms !important;
+  }
+}
