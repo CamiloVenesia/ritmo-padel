@@ -1,27 +1,23 @@
 
-# RITMO PÁDEL — Producción
-# React + Express + PostgreSQL
+# RITMO PÁDEL — Despliegue gratuito para portfolio
 
 services:
   - type: web
     name: ritmo-padel-app
     runtime: node
     region: virginia
-    plan: 0.5c-512mb
+    plan: free
     branch: main
 
-    # Publicación manual después de las pruebas
     autoDeployTrigger: off
 
-    # Compilación completa del monorepositorio
     buildCommand: npm ci --include=dev && npm run build
 
-    # Prepara la base ANTES de cada despliegue.
-    # El seed es idempotente y no crea usuarios
-    # de demostración en producción.
-    preDeployCommand: npm run db:seed
+    # En el plan gratuito no usamos preDeployCommand.
+    # El seed prepara las tablas y las cuatro canchas.
+    # En producción no crea usuarios demo.
+    startCommand: npm run db:seed && npm start
 
-    startCommand: npm start
     healthCheckPath: /api/health
 
     envVars:
@@ -51,9 +47,7 @@ services:
 databases:
   - name: ritmo-padel-db
     region: virginia
-    plan: 0.1c-256mb
+    plan: free
     postgresMajorVersion: "17"
     databaseName: ritmo_padel
     user: ritmo_app
-
-    ipAllowList: []
