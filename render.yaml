@@ -1,6 +1,6 @@
 
-# RITMO PÁDEL — Infraestructura de producción
-# Frontend React + API Express + PostgreSQL
+# RITMO PÁDEL — Producción
+# React + Express + PostgreSQL
 
 services:
   - type: web
@@ -10,20 +10,19 @@ services:
     plan: 0.5c-512mb
     branch: main
 
-    # Los despliegues se harán manualmente
-    # después de validar cada bloque.
+    # Publicación manual después de las pruebas
     autoDeployTrigger: off
 
-    # Instalamos herramientas de compilación
-    # y construimos API + frontend.
+    # Compilación completa del monorepositorio
     buildCommand: npm ci --include=dev && npm run build
+
+    # Prepara la base ANTES de cada despliegue.
+    # El seed es idempotente y no crea usuarios
+    # de demostración en producción.
+    preDeployCommand: npm run db:seed
 
     startCommand: npm start
     healthCheckPath: /api/health
-
-    # Se ejecuta únicamente en el primer despliegue.
-    # En producción crea las canchas, no los usuarios demo.
-    initialDeployHook: npm run db:seed
 
     envVars:
       - key: NODE_ENV
@@ -57,5 +56,4 @@ databases:
     databaseName: ritmo_padel
     user: ritmo_app
 
-    # Solo conexiones privadas desde Render.
     ipAllowList: []

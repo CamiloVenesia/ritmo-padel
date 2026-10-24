@@ -1,18 +1,116 @@
+
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
-import { pool, query } from '../lib/db.js';
-import { migrate } from './migrate.js';
+
+import { config } from '../lib/config.js';
+import { pool } from '../lib/db.js';
 import { logger } from '../lib/logger.js';
+import { migrate } from './migrate.js';
+
+const adminSchema = z.object({
+  ADMIN_NAME: z.string().trim().min(2).max(100),
+
+  ADMIN_EMAIL: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .pipe(z.email().max(160)),
+
+  ADMIN_PASSWORD: z
+    .string()
+    .min(20, 'La contraseña debe tener al menos 20 caracteres.')
+    .refine(
+      (value) => Buffer.byteLength(value, 'utf8') <= 72,
+      'La contraseña no puede superar 72 bytes.',
+    ),
+});
+
+async function createFirstAdmin() {
+  if (config.NODE_ENV !== 'production') {
+    throw new Error(
+      'La creación del administrador inicial solo está habilitada en producción.',
+    );
+  }
+
+  const { ADMIN_NAME, ADMIN_EMAIL, ADMIN_PASSWORD } =
+    adminSchema.parse(process.env);
+
+  await migrate();
+
+  const passwordHash = await bcrypt.hash(
+    ADMIN_PASSWORD,
+    12,
+  );
+
+  const connection = await pool.connect();
+
+  try {
+    await connection.query('BEGIN');
+
+    // Evita dos inicializaciones simultáneas.
+    await connection.query(
+      'SELECT pg_advisory_xact_lock($1)',
+      [772042],
+    );
+
+    // El comando es exclusivamente para crear
+    // el primer administrador del sistema.
+    const existingAdmin = await connection.query(
+      `SELECT id
+       FROM app_users
+       WHERE role = 'admin'
+       LIMIT 1`,
+    );
+
+    if (existingAdmin.rowCount) {
+      throw new Error(
+        'Ya existe un administrador. No se creó otra cuenta.',
+      );
+    }
+
+    await connection.query(
+      `INSERT INTO app_users (
+        full_name,
+        email,
+        password_hash,
+        role,
+        active
+      )
+      VALUES ($1, $2, $3, 'admin', true)`,
+      [ADMIN_NAME, ADMIN_EMAIL, passwordHash],
+    );
+
+    await connection.query('COMMIT');
+
+    logger.info(
+      'Administrador inicial creado correctamente.',
+    );
+  } catch (error) {
+    await connection.query('ROLLBACK');
+    throw error;
+  } finally {
+    connection.release();
+  }
+}
 
 async function main() {
-  const { ADMIN_EMAIL: email, ADMIN_PASSWORD: password, ADMIN_NAME: fullName } = z.object({
-    ADMIN_EMAIL: z.email(), ADMIN_PASSWORD: z.string().min(14), ADMIN_NAME: z.string().min(2).max(100)
-  }).parse(process.env);
-  await migrate();
-  const hash = await bcrypt.hash(password, 12);
-  // No cambia silenciosamente credenciales ni permisos de una cuenta existente.
-  const result = await query(`INSERT INTO app_users(full_name,email,password_hash,role) VALUES($1,$2,$3,'admin') ON CONFLICT(email) DO NOTHING RETURNING id`, [fullName, email.toLowerCase(), hash]);
-  if (!result.rowCount) throw new Error('El email ya existe. Elegí un email diferente.');
-  logger.info('Cuenta administradora creada. Borrá ADMIN_PASSWORD del entorno después.');
+  try {
+    await createFirstAdmin();
+  } catch (error) {
+    logger.error(
+      {
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Error inesperado',
+      },
+      'No se pudo crear el administrador inicial.',
+    );
+
+    process.exitCode = 1;
+  } finally {
+    await pool.end();
+  }
 }
-main().then(()=>pool.end()).catch(async err=>{ logger.error({err},'Admin bootstrap failed');await pool.end();process.exitCode=1;});
+
+void main();
