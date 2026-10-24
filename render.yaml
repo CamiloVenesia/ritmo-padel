@@ -1,0 +1,61 @@
+
+# RITMO PÁDEL — Infraestructura de producción
+# Frontend React + API Express + PostgreSQL
+
+services:
+  - type: web
+    name: ritmo-padel-app
+    runtime: node
+    region: virginia
+    plan: 0.5c-512mb
+    branch: main
+
+    # Los despliegues se harán manualmente
+    # después de validar cada bloque.
+    autoDeployTrigger: off
+
+    # Instalamos herramientas de compilación
+    # y construimos API + frontend.
+    buildCommand: npm ci --include=dev && npm run build
+
+    startCommand: npm start
+    healthCheckPath: /api/health
+
+    # Se ejecuta únicamente en el primer despliegue.
+    # En producción crea las canchas, no los usuarios demo.
+    initialDeployHook: npm run db:seed
+
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+      - key: VITE_DATA_MODE
+        value: live
+
+      - key: CLUB_TIMEZONE
+        value: America/Argentina/Buenos_Aires
+
+      - key: SESSION_SECRET
+        generateValue: true
+
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ritmo-padel-db
+          property: connectionString
+
+      - key: PUBLIC_ORIGIN
+        fromService:
+          type: web
+          name: ritmo-padel-app
+          envVarKey: RENDER_EXTERNAL_URL
+
+databases:
+  - name: ritmo-padel-db
+    region: virginia
+    plan: 0.1c-256mb
+    postgresMajorVersion: "17"
+    databaseName: ritmo_padel
+    user: ritmo_app
+
+    # Solo conexiones privadas desde Render.
+    ipAllowList: []
