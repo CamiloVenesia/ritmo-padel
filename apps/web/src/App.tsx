@@ -1,3 +1,4 @@
+
 import { lazy, Suspense, useEffect } from 'react';
 import {
   Route,
@@ -10,9 +11,9 @@ import {
   SiteFooter,
 } from './components/SiteHeader';
 
+import { CourtCardAnimations } from './components/CourtCardAnimations';
 import { HomePage } from './pages/HomePage';
 
-// Las páginas secundarias se descargan solo al visitarlas.
 const BookingPage = lazy(() =>
   import('./pages/BookingPage').then((module) => ({
     default: module.BookingPage,
@@ -115,6 +116,8 @@ export function App() {
           </Routes>
         </Suspense>
       </main>
+
+      <CourtCardAnimations />
 
       <SiteFooter />
     </>
